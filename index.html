@@ -1,0 +1,627 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudBill - Invoice Generation System</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f3f6fc;
+            color: #26334d;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+
+        .sidebar {
+            width: 240px;
+            background: #172554;
+            color: white;
+            padding: 28px 18px;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .logo span {
+            color: #60a5fa;
+        }
+
+        .sidebar p {
+            color: #b9c6e2;
+            font-size: 13px;
+            margin-bottom: 35px;
+        }
+
+        .nav-title {
+            font-size: 11px;
+            color: #94a3b8;
+            margin: 25px 10px 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-item {
+            display: block;
+            color: #dbeafe;
+            text-decoration: none;
+            padding: 13px 12px;
+            margin-bottom: 7px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        /* Main Content */
+
+        .main {
+            flex: 1;
+            min-width: 0;
+            padding: 30px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .topbar h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .topbar p {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            background: #dbeafe;
+            color: #1d4ed8;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .profile small {
+            color: #718096;
+        }
+
+        /* Buttons */
+
+        .btn {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            padding: 12px 18px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
+        }
+
+        /* Summary Cards */
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 12px;
+            padding: 22px;
+            box-shadow: 0 3px 12px rgba(31, 45, 61, 0.04);
+        }
+
+        .summary-card p {
+            color: #718096;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .summary-card h2 {
+            font-size: 26px;
+            margin-bottom: 10px;
+        }
+
+        .summary-card small {
+            color: #16a34a;
+            font-size: 12px;
+        }
+
+        .icon {
+            font-size: 25px;
+            margin-bottom: 15px;
+        }
+
+        /* Invoice Section */
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 12px rgba(31, 45, 61, 0.04);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 22px;
+        }
+
+        .section-header h2 {
+            font-size: 20px;
+        }
+
+        .section-header a {
+            color: #2563eb;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #718096;
+            font-size: 12px;
+            text-align: left;
+            padding: 15px 12px;
+            font-weight: bold;
+        }
+
+        td {
+            padding: 17px 12px;
+            border-bottom: 1px solid #edf0f5;
+            font-size: 13px;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .invoice-id {
+            color: #2563eb;
+            font-weight: bold;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .paid {
+            color: #15803d;
+            background: #dcfce7;
+        }
+
+        .pending {
+            color: #b45309;
+            background: #fef3c7;
+        }
+
+        .overdue {
+            color: #b91c1c;
+            background: #fee2e2;
+        }
+
+        /* Bottom Cards */
+
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+        }
+
+        .billing-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 15px 0;
+            border-bottom: 1px solid #edf0f5;
+        }
+
+        .billing-item:last-child {
+            border-bottom: none;
+        }
+
+        .billing-item p {
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .billing-item small {
+            color: #718096;
+            font-size: 12px;
+        }
+
+        .amount {
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .payment-box {
+            background: #eff6ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 12px;
+        }
+
+        .payment-box p {
+            color: #475569;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .payment-box h2 {
+            color: #1d4ed8;
+            font-size: 27px;
+            margin-bottom: 15px;
+        }
+
+        .progress {
+            height: 8px;
+            background: #dbeafe;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 72%;
+            height: 100%;
+            background: #2563eb;
+            border-radius: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0 5px;
+            color: #718096;
+            font-size: 12px;
+        }
+
+        /* Responsive Design */
+
+        @media (max-width: 1100px) {
+            .summary {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .sidebar {
+                width: 205px;
+            }
+        }
+
+        @media (max-width: 750px) {
+            .layout {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                padding: 20px;
+            }
+
+            .sidebar p {
+                margin-bottom: 15px;
+            }
+
+            .nav-title {
+                margin-top: 15px;
+            }
+
+            .main {
+                padding: 20px 15px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .bottom-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 450px) {
+            .summary {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar h1 {
+                font-size: 24px;
+            }
+
+            .section {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
+        <div class="logo">☁ Cloud<span>Bill</span></div>
+        <p>Invoice & Billing Management</p>
+
+        <div class="nav-title">Main Menu</div>
+
+        <a href="#dashboard" class="nav-item active">▦ Dashboard</a>
+        <a href="#invoices" class="nav-item">▤ Invoices</a>
+        <a href="#billing" class="nav-item">▣ Billing History</a>
+        <a href="#payments" class="nav-item">💳 Payments</a>
+
+        <div class="nav-title">Management</div>
+
+        <a href="#customers" class="nav-item">♙ Customers</a>
+        <a href="#reports" class="nav-item">▥ Reports</a>
+        <a href="#settings" class="nav-item">⚙ Settings</a>
+
+    </aside>
+
+    <!-- Main Dashboard -->
+
+    <main class="main" id="dashboard">
+
+        <header class="topbar">
+
+            <div>
+                <h1>Invoice Dashboard</h1>
+                <p>Welcome back! Here's your billing overview.</p>
+            </div>
+
+            <div class="profile">
+                <div class="avatar">AD</div>
+                <div>
+                    <strong>Admin User</strong><br>
+                    <small>Administrator</small>
+                </div>
+            </div>
+
+        </header>
+
+        <!-- Summary Cards -->
+
+        <section class="summary">
+
+            <div class="summary-card">
+                <div class="icon">📄</div>
+                <p>Total Invoices</p>
+                <h2>248</h2>
+                <small>↑ 12% this month</small>
+            </div>
+
+            <div class="summary-card">
+                <div class="icon">💰</div>
+                <p>Total Revenue</p>
+                <h2>₹84,500</h2>
+                <small>↑ 8.5% this month</small>
+            </div>
+
+            <div class="summary-card">
+                <div class="icon">⏳</div>
+                <p>Pending Payments</p>
+                <h2>₹12,800</h2>
+                <small style="color:#b45309;">5 invoices pending</small>
+            </div>
+
+            <div class="summary-card">
+                <div class="icon">✅</div>
+                <p>Paid Invoices</p>
+                <h2>186</h2>
+                <small>75% payment success</small>
+            </div>
+
+        </section>
+
+        <!-- Invoice Table -->
+
+        <section class="section" id="invoices">
+
+            <div class="section-header">
+                <h2>Recent Invoices</h2>
+                <a href="#invoices">View All →</a>
+            </div>
+
+            <div class="table-container">
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>INVOICE ID</th>
+                            <th>CUSTOMER</th>
+                            <th>DATE</th>
+                            <th>AMOUNT</th>
+                            <th>STATUS</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td class="invoice-id">INV-1001</td>
+                            <td>Rahul Sharma</td>
+                            <td>20 Oct 2026</td>
+                            <td>₹5,000</td>
+                            <td><span class="status paid">Paid</span></td>
+                        </tr>
+
+                        <tr>
+                            <td class="invoice-id">INV-1002</td>
+                            <td>Priya Reddy</td>
+                            <td>19 Oct 2026</td>
+                            <td>₹2,500</td>
+                            <td><span class="status pending">Pending</span></td>
+                        </tr>
+
+                        <tr>
+                            <td class="invoice-id">INV-1003</td>
+                            <td>Arjun Kumar</td>
+                            <td>18 Oct 2026</td>
+                            <td>₹8,200</td>
+                            <td><span class="status paid">Paid</span></td>
+                        </tr>
+
+                        <tr>
+                            <td class="invoice-id">INV-1004</td>
+                            <td>Sneha Patel</td>
+                            <td>17 Oct 2026</td>
+                            <td>₹3,600</td>
+                            <td><span class="status overdue">Overdue</span></td>
+                        </tr>
+
+                        <tr>
+                            <td class="invoice-id">INV-1005</td>
+                            <td>Kiran Raju</td>
+                            <td>16 Oct 2026</td>
+                            <td>₹4,750</td>
+                            <td><span class="status paid">Paid</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+
+        </section>
+
+        <!-- Billing and Payments -->
+
+        <div class="bottom-grid">
+
+            <section class="section" id="billing">
+
+                <div class="section-header">
+                    <h2>Recent Billing</h2>
+                    <a href="#billing">View History →</a>
+                </div>
+
+                <div class="billing-item">
+                    <div>
+                        <p><strong>Cloud Hosting Plan</strong></p>
+                        <small>Invoice #INV-1001</small>
+                    </div>
+                    <span class="amount">₹5,000</span>
+                </div>
+
+                <div class="billing-item">
+                    <div>
+                        <p><strong>Storage Subscription</strong></p>
+                        <small>Invoice #INV-1002</small>
+                    </div>
+                    <span class="amount">₹2,500</span>
+                </div>
+
+                <div class="billing-item">
+                    <div>
+                        <p><strong>Cloud Database Plan</strong></p>
+                        <small>Invoice #INV-1003</small>
+                    </div>
+                    <span class="amount">₹8,200</span>
+                </div>
+
+            </section>
+
+            <section class="section" id="payments">
+
+                <div class="section-header">
+                    <h2>Payment Overview</h2>
+                </div>
+
+                <div class="payment-box">
+                    <p>Total payments collected</p>
+                    <h2>₹84,500</h2>
+
+                    <div class="progress">
+                        <div class="progress-bar"></div>
+                    </div>
+
+                    <p>72% of the monthly revenue target achieved.</p>
+
+                    <a href="#invoices" class="btn">View Invoices</a>
+                </div>
+
+            </section>
+
+        </div>
+
+        <footer>
+            © 2026 CloudBill | Cloud Invoice Generation and Billing System
+        </footer>
+
+    </main>
+
+</div>
+
+</body>
+</html>
+```
